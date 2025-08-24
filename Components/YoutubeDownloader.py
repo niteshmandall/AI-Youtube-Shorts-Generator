@@ -1,4 +1,7 @@
 import os
+os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+
 from pytubefix import YouTube
 import ffmpeg
 
@@ -6,9 +9,9 @@ def get_video_size(stream):
 
     return stream.filesize / (1024 * 1024)
 
-def download_youtube_video(url):
+def download_youtube_video(url, on_progress=None):
     try:
-        yt = YouTube(url)
+        yt = YouTube(url, on_progress_callback=on_progress)
 
         video_streams = yt.streams.filter(type="video").order_by('resolution').desc()
         audio_stream = yt.streams.filter(only_audio=True).first()
@@ -26,11 +29,11 @@ def download_youtube_video(url):
             os.makedirs('videos')
 
         print(f"Downloading video: {yt.title}")
-        video_file = selected_stream.download(output_path='videos', filename_prefix="video_")
+        video_file = selected_stream.download(output_path='videos', filename_prefix="video_", skip_existing=False)
 
         if not selected_stream.is_progressive:
-            print("Downloading audio...")
-            audio_file = audio_stream.download(output_path='videos', filename_prefix="audio_")
+            print("\nDownloading audio...")
+            audio_file = audio_stream.download(output_path='videos', filename_prefix="audio_", skip_existing=False)
 
             print("Merging video and audio...")
             output_file = os.path.join('videos', f"{yt.title}.mp4")

@@ -1,14 +1,19 @@
-import openai
+import google.generativeai as genai
 from dotenv import load_dotenv
 import os
+os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+
 import json
 
 load_dotenv()
 
-openai.api_key = os.getenv("OPENAI_API")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-if not openai.api_key:
-    raise ValueError("API key not found. Make sure it is defined in the .env file.")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY not found. Make sure it is defined in the .env file.")
+
+genai.configure(api_key=GEMINI_API_KEY)
 
 
 # Function to extract start and end times
@@ -57,16 +62,27 @@ def GetHighlight(Transcription):
     print("Getting Highlight from Transcription ")
     try:
 
-        response = openai.ChatCompletion.create(
-            model="gpt-4o-2024-05-13",
-            temperature=0.7,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": Transcription + system},
-            ],
-        )
-
-        json_string = response.choices[0].message.content
+        # Using gemini-2.0-flash which has better rate limits for free tier
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        try:
+            response = model.generate_content(
+                f"""{system}
+                
+                Transcription:
+                {Transcription}""",
+                generation_config={
+                    "temperature": 0.7,
+                    "max_output_tokens": 2048,
+                }
+            )
+        except Exception as e:
+            if "quota" in str(e).lower() or "rate_limit" in str(e).lower():
+                print("⚠️  Rate limit reached. Please wait a few minutes and try again.")
+                print("💡 Tip: Consider upgrading your Google Cloud plan for higher limits.")
+                return 0, 0
+            raise
+        
+        json_string = response.text
         json_string = json_string.replace("json", "")
         json_string = json_string.replace("```", "")
         # print(json_string)

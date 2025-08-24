@@ -1,6 +1,6 @@
 # AI Youtube Shorts Generator
 
-AI Youtube Shorts Generator is a Python tool designed to generate engaging YouTube shorts from long-form videos. By leveraging the power of GPT-4 and Whisper, it extracts the most interesting highlights, detects speakers, and crops the content vertically for shorts. This tool is currently in version 0.1 and might have some bugs.
+AI Youtube Shorts Generator is a Python tool designed to generate engaging YouTube shorts from long-form videos. By leveraging the power of Google's Gemini Pro and Whisper, it extracts the most interesting highlights, detects speakers, and crops the content vertically for shorts. This tool is currently in version 0.1 and might have some bugs.
 
 If you wish to add shorts generation into your application, here is an api to create shorts from long form videos :- https://docs.vadoo.tv/docs/guide/create-ai-clips
 
@@ -18,7 +18,7 @@ If you wish to add shorts generation into your application, here is an api to cr
 
 - **Video Download**: Given a YouTube URL, the tool downloads the video.
 - **Transcription**: Uses Whisper to transcribe the video.
-- **Highlight Extraction**: Utilizes OpenAI's GPT-4 to identify the most engaging parts of the video.
+- **Highlight Extraction**: Utilizes Google's Gemini Pro to identify the most engaging parts of the video.
 - **Speaker Detection**: Detects speakers in the video.
 - **Vertical Cropping**: Crops the highlighted sections vertically, making them perfect for shorts.
 
@@ -61,15 +61,15 @@ pip install -r requirements.txt
 
 1. Set up the environment variables.
 
-Create a `.env` file in the project root directory and add your OpenAI API key:
+Create a `.env` file in the project root directory and add your Google Gemini API key:
 
 ```bash
-OPENAI_API=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ## Usage
 
-1. Ensure your `.env` file is correctly set up with your OpenAI API key.
+1. Ensure your `.env` file is correctly set up with your Google Gemini API key.
 2. Run the main script and enter the desired YouTube URL when prompted:
    ```bash
    python main.py

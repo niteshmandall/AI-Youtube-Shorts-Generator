@@ -10,5 +10,6 @@ pytubefix
 torch
 webrtcvad-wheels
 pydub
-openai==1.44.1
+google-generativeai
+tqdm
 --extra-index-url https://download.pytorch.org/whl/cu121
