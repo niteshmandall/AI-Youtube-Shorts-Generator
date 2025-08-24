@@ -5,6 +5,7 @@ from Components.Edit import extractAudio, crop_video
 from Components.Transcription import transcribeAudio
 from Components.LanguageTasks import GetHighlight
 from Components.FaceCrop import crop_to_vertical, combine_videos
+from Components.CaptionGenerator import process_video_with_captions
 
 def main():
     url = input("Enter YouTube video URL: ")
@@ -67,10 +68,19 @@ def main():
                         pbar.update(1)
                     
                     with tqdm(desc="🎬 Finalizing video", leave=False) as pbar:
-                        combine_videos(Output, croped, "Final.mp4")
+                        final_output = "Final_NoCaptions.mp4"
+                        combine_videos(Output, croped, final_output)
                         pbar.update(1)
                     
-                    print("\n✨ Processing complete! Final video saved as: Final.mp4")
+                    # Add captions to the final video
+                    with tqdm(desc="📝 Adding captions", leave=False) as pbar:
+                        captioned_output = "Final_With_Captions.mp4"
+                        process_video_with_captions(final_output, Audio, captioned_output)
+                        pbar.update(1)
+                    
+                    print("\n✨ Processing complete!")
+                    print(f"- Video without captions: {final_output}")
+                    print(f"- Video with captions: {captioned_output}")
                 else:
                     print("❌ Error: Could not determine highlight segment")
             else:
