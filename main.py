@@ -5,9 +5,25 @@ from Components.Edit import extractAudio, crop_video
 from Components.Transcription import transcribeAudio
 from Components.LanguageTasks import GetHighlight
 from Components.FaceCrop import crop_to_vertical, combine_videos
-from Components.CaptionGenerator import process_video_with_captions
+from Components.improved_captioning import process_video_with_captions
+
+import os
+from datetime import datetime
+
+def create_job_directory():
+    """Create a timestamped directory for each job"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    job_dir = f"jobs/job_{timestamp}"
+    os.makedirs(job_dir, exist_ok=True)
+    os.makedirs(f"{job_dir}/assets", exist_ok=True)
+    os.makedirs(f"{job_dir}/output", exist_ok=True)
+    return job_dir
 
 def main():
+    # Create job directory
+    job_dir = create_job_directory()
+    print(f"📁 Job directory created: {job_dir}")
+    
     url = input("Enter YouTube video URL: ")
     
     print("\n🚀 Starting video processing...")
@@ -55,9 +71,12 @@ def main():
                 if start != 0 and stop != 0:
                     print(f"🎯 Highlight found: {start}s to {stop}s")
                     
-                    # Process video
-                    Output = "Out.mp4"
-                    croped = "croped.mp4"
+                    # Process video with job-specific paths
+                    output_base = os.path.basename(Vid).split('.')[0]
+                    Output = os.path.join(job_dir, "assets", f"{output_base}_cropped.mp4")
+                    croped = os.path.join(job_dir, "assets", f"{output_base}_vertical.mp4")
+                    final_output = os.path.join(job_dir, "output", f"{output_base}_final_nocaptions.mp4")
+                    captioned_output = os.path.join(job_dir, "output", f"{output_base}_final_with_captions.mp4")
                     
                     with tqdm(desc="✂️  Cropping video", leave=False) as pbar:
                         crop_video(Vid, Output, start, stop)
@@ -68,15 +87,17 @@ def main():
                         pbar.update(1)
                     
                     with tqdm(desc="🎬 Finalizing video", leave=False) as pbar:
-                        final_output = "Final_NoCaptions.mp4"
                         combine_videos(Output, croped, final_output)
                         pbar.update(1)
                     
                     # Add captions to the final video
                     with tqdm(desc="📝 Adding captions", leave=False) as pbar:
-                        captioned_output = "Final_With_Captions.mp4"
                         process_video_with_captions(final_output, Audio, captioned_output)
                         pbar.update(1)
+                    
+                    print(f"\n✅ Processing complete!")
+                    print(f"- Final video with captions: {captioned_output}")
+                    print(f"- Job directory: {job_dir}")
                     
                     print("\n✨ Processing complete!")
                     print(f"- Video without captions: {final_output}")
